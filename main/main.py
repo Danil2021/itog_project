@@ -1,5 +1,7 @@
 import telebot
 from telebot import types
+from libs import sql_work
+from libs.translate import translate
 import requests
 import os
 
@@ -9,12 +11,14 @@ bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
+    if sql_work.check_user(message.chat.id):
+        ...
     markup = types.InlineKeyboardMarkup()
-    button_ru = types.InlineKeyboardButton("🇷🇺", callback_data='lang_ru')
-    button_en = types.InlineKeyboardButton("🇺🇸🇬🇧", callback_data='lang_en')
+    button_ru = types.InlineKeyboardButton(translate('flag', 'ru'), callback_data='lang_ru')
+    button_en = types.InlineKeyboardButton(translate('flag', 'en'), callback_data='lang_en')
     markup.add(button_ru)
     markup.add(button_en)
-    bot.send_message(message.chat.id,"🇺🇸Choose language🇬🇧/🇷🇺Выберете язык🇷🇺".format(message.from_user), reply_markup=markup)
+    bot.send_message(message.chat.id, f"{translate('set_lang', 'ru')}/{translate('set_lang', 'en')}".format(message.from_user), reply_markup=markup)
 
 
 
