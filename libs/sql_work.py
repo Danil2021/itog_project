@@ -12,6 +12,13 @@ def check_user(chatid):
         con.close()
         return False
 
+def get_user_lang(chatid):
+    con = sqlite3.connect('dbs/root.db')
+    cursor = con.cursor()
+    lang = cursor.execute(f'SELECT lang FROM root WHERE chatid = {chatid};').fetchone()[0]
+    con.close()
+    return lang
+
 def create_new_user(chatid, lang):
     con = sqlite3.connect('dbs/root.db')
     cursor = con.cursor()

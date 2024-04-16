@@ -1,5 +1,9 @@
 {
   "flag": "\uD83C\uDDF7\uD83C\uDDFA",
-  "set_lang": "\uD83C\uDDF7\uD83C\uDDFAВыберете язык\uD83C\uDDF7\uD83C\uDDFA"
-
+  "set_lang": "\uD83C\uDDF7\uD83C\uDDFAВыберете язык\uD83C\uDDF7\uD83C\uDDFA",
+  "greet": "Вы успешно вошли в систему",
+  "greet_new": "Спасибо за регистрацию",
+  "short_guide": "Для того чтобы внести запись, просто отправьте или перешлите голосовое сообщение",
+  "zapisi": "Записи",
+  "settings": "Настройки"
 }

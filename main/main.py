@@ -11,26 +11,49 @@ bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
-    if sql_work.check_user(message.chat.id):
-        ...
-    markup = types.InlineKeyboardMarkup()
-    button_ru = types.InlineKeyboardButton(translate('flag', 'ru'), callback_data='lang_ru')
-    button_en = types.InlineKeyboardButton(translate('flag', 'en'), callback_data='lang_en')
-    markup.add(button_ru)
-    markup.add(button_en)
-    bot.send_message(message.chat.id, f"{translate('set_lang', 'ru')}/{translate('set_lang', 'en')}".format(message.from_user), reply_markup=markup)
+    if sql_work.check_user(str(message.chat.id)):
+        lang = sql_work.get_user_lang(message.chat.id)
+        if lang == 'ru':
+            bot.send_message(message.chat.id, translate('greet', lang=lang))
+            bot.send_message(message.chat.id, translate("short_guide", lang=lang), reply_markup=main_keyboard(lang))
+        elif lang == 'en':
+            bot.send_message(message.chat.id, translate('greet', lang=lang))
+            bot.send_message(message.chat.id, translate("short_guide", lang=lang), reply_markup=main_keyboard(lang))
+    else:
+        markup = types.InlineKeyboardMarkup()
+        button_ru = types.InlineKeyboardButton(translate('flag', 'ru'), callback_data='lang_ru')
+        button_en = types.InlineKeyboardButton(translate('flag', 'en'), callback_data='lang_en')
+        markup.add(button_ru)
+        markup.add(button_en)
+        bot.send_message(message.chat.id,
+                         f"{translate('set_lang', 'ru')}/{translate('set_lang', 'en')}".format(message.from_user),
+                         reply_markup=markup)
 
 
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'lang_ru')
 def save_btn(call):
-    print('ru')
+    sql_work.create_new_user(str(call.message.chat.id), 'ru')
+    sql_work.create_new_user_table(str(call.message.chat.id))
+    bot.send_message(call.message.chat.id, translate("greet_new", 'ru'))
+    bot.send_message(call.message.chat.id, translate("short_guide", 'ru'))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'lang_en')
 def save_btn(call):
-    print('en')
+    sql_work.create_new_user(str(call.message.chat.id), 'en')
+    sql_work.create_new_user_table(str(call.message.chat.id))
+    bot.send_message(call.message.chat.id, translate('greet_new', 'en'))
+    bot.send_message(call.message.chat.id, translate("short_guide", 'en'))
+
+
+def main_keyboard(lang):
+    keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    get_zap = types.KeyboardButton(text=translate('zapisi', lang=lang))
+    settings = types.KeyboardButton(text=translate('settings', lang=lang))
+    keyboard.add(get_zap, settings)
+    return keyboard
 
 
 
