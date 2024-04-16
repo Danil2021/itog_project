@@ -3,7 +3,10 @@ from telebot import types
 from libs import sql_work
 from libs.translate import translate
 import requests
+from libs import stt
 import os
+from libs import ai_work
+import datetime
 
 token = '6772739524:AAHRgjEe6xfTsCOXg6gwknGe-iSn9p-1mwc'
 bot = telebot.TeleBot(token)
@@ -57,22 +60,24 @@ def main_keyboard(lang):
 
 
 
-#@bot.message_handler(content_types=['voice'])
-#def get_audio_messages(message):
-#    file_info = bot.get_file(message.voice.file_id)
-#    path = file_info.file_path
-#    fname = os.path.basename(path).lstrip('file_')
-#    print(fname)
-#    doc = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(token, file_info.file_path))
-#    with open('voices/' + fname, 'wb') as f:
-#        f.write(doc.content)
-#    last_audio = str(last_voice(os.listdir('voices')))
-#    print(os.listdir('voices'))
-#    #print(last_audio)
-#    convert(last_audio)
-#    text = stt_work(last_audio)
-#    print(text)
-#    bot.send_message(message.chat.id, text)
+@bot.message_handler(content_types=['voice'])
+def get_audio_messages(message):
+    lang = sql_work.get_user_lang(message.chat.id)
+    file_info = bot.get_file(message.voice.file_id)
+    path = file_info.file_path
+    fname = os.path.basename(path).lstrip('file_')
+    doc = requests.get('https://api.telegram.org/file/bot{0}/{1}'.format(token, file_info.file_path))
+    with open('tmp/' + fname, 'wb') as f:
+        f.write(doc.content)
+    text = stt.stt_work(fname[:-4])
+    #short_text = ai_work.shorted_text(text)
+    short_text = "Its not working yet"
+    voice = f'voices/{message.chat.id}/{fname[:-4]}.wav'
+    sql_work.add_new_value(chatid=str(message.chat.id), text=text, shorted=short_text, voice=voice)
+    bot.send_message(message.chat.id,
+                     f'{translate("success1", lang)}`{datetime.datetime.now().strftime("%d\.%m\.%Y %H:%M:%S")}` {translate("success2", lang)}\n```{datetime.datetime.now().strftime("%d.%m.%Y")}\n{text}```\n{translate('short', lang)}:\n`{short_text}`', parse_mode='MarkdownV2', reply_to_message_id=message.message_id)
+
+
 
 
 bot.infinity_polling()

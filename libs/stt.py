@@ -5,7 +5,7 @@ import json
 from vosk import Model, KaldiRecognizer, SetLogLevel
 import shutil
 SetLogLevel(-1)
-def stt_work(file, id='tmp'):
+def stt_work(file):
     subprocess.call(['utils/ffmpeg', '-y', '-i', f'tmp/{file}.oga', f'tmp/{file}.wav'])
     wf = wave.open(f'tmp/{file}.wav', "rb")
 

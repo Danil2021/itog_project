@@ -10,3 +10,4 @@ def shorted_text(text):
         ]
     )
     return completion.choices[0].message.content
+
