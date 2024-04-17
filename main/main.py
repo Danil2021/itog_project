@@ -41,7 +41,7 @@ def save_btn(call):
     sql_work.create_new_user(str(call.message.chat.id), 'ru')
     sql_work.create_new_user_table(str(call.message.chat.id))
     bot.send_message(call.message.chat.id, translate("greet_new", 'ru'))
-    bot.send_message(call.message.chat.id, translate("short_guide", 'ru'))
+    bot.send_message(call.message.chat.id, translate("short_guide", 'ru'), reply_markup=main_keyboard('ru'))
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'lang_en')
@@ -49,7 +49,25 @@ def save_btn(call):
     sql_work.create_new_user(str(call.message.chat.id), 'en')
     sql_work.create_new_user_table(str(call.message.chat.id))
     bot.send_message(call.message.chat.id, translate('greet_new', 'en'))
-    bot.send_message(call.message.chat.id, translate("short_guide", 'en'))
+    bot.send_message(call.message.chat.id, translate("short_guide", 'en'), reply_markup=main_keyboard('en'))
+
+
+
+#----------------------------------------------------------------
+@bot.callback_query_handler(func=lambda call: call.data == 'old_lang_ru')
+def save_btn(call):
+    sql_work.set_user_lang(str(call.message.chat.id), 'ru')
+    bot.send_message(call.message.chat.id, translate("greet_new", 'ru'))
+    bot.send_message(call.message.chat.id, translate("short_guide", 'ru'), reply_markup=main_keyboard('ru'))
+
+
+@bot.callback_query_handler(func=lambda call: call.data == 'old_lang_en')
+def save_btn(call):
+    sql_work.set_user_lang(str(call.message.chat.id), 'en')
+    bot.send_message(call.message.chat.id, translate('greet_new', 'en'))
+    bot.send_message(call.message.chat.id, translate("short_guide", 'en'), reply_markup=main_keyboard('en'))
+
+#---------------------------------------------------------------------------
 
 
 def main_keyboard(lang):
@@ -64,8 +82,20 @@ def main_keyboard(lang):
 def message_handl(message):
     if message.text == translate('zapisi', lang='ru') or message.text == translate('zapisi', lang='en'):
         all_vals = sql_work.get_all_values(message.chat.id)
-        num = len(all_vals)
-        bot.send_message(message.chat.id, text=f"{translate('stats_text', lang=sql_work.get_user_lang(message.chat.id))}{num}\n{'\n'.join(divide_time_intervals(all_vals))}")
+        if len(all_vals) == 0:
+            bot.send_message(message.chat.id, text=translate('empty_stats', lang=sql_work.get_user_lang(message.chat.id)))
+        else:
+            num = len(all_vals)
+            bot.send_message(message.chat.id, text=f"{translate('stats_text', lang=sql_work.get_user_lang(message.chat.id))}{num}\n{'\n'.join(divide_time_intervals(all_vals))}")
+    elif message.text == translate('settings', lang='ru') or message.text == translate('settings', lang='en'):
+        markup = types.InlineKeyboardMarkup()
+        button_ru = types.InlineKeyboardButton(translate('flag', 'ru'), callback_data='old_lang_ru')
+        button_en = types.InlineKeyboardButton(translate('flag', 'en'), callback_data='old_lang_en')
+        markup.add(button_ru)
+        markup.add(button_en)
+        bot.send_message(message.chat.id,
+                         f"{translate('set_lang', 'ru')}/{translate('set_lang', 'en')}".format(message.from_user),
+                         reply_markup=markup)
 
 
 @bot.message_handler(content_types=['voice'])
@@ -78,11 +108,11 @@ def get_audio_messages(message):
     with open('tmp/' + fname, 'wb') as f:
         f.write(doc.content)
     text = stt.stt_work(fname[:-4])
-    #try:
-    #    short_text = ai_work.ai_work(text)
-    #except Exception:
-    #    short_text = "Its not working yet"
-    short_text = "Its not working yet"
+    try:
+        short_text = ai_work.ai_work(text)
+    except Exception:
+        short_text = "Its not working yet"
+    #short_text = "Its not working yet"
     voice = f'voices/{message.chat.id}/{fname[:-4]}.wav'
     msg_id = bot.send_message(message.chat.id,
                      f'{translate("success1", lang)}`{datetime.datetime.now().strftime("%d\.%m\.%Y %H:%M:%S")}` {translate("success2", lang)}\n```Text\n{text}```\n{translate('short', lang)}:\n```Short\n{short_text}```', parse_mode='MarkdownV2', reply_to_message_id=message.message_id).message_id
@@ -91,4 +121,3 @@ def get_audio_messages(message):
 
 
 
-bot.infinity_polling()

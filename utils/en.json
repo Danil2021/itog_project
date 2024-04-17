@@ -9,5 +9,6 @@
   "success1": "Successfully saved the record from  ",
   "success2": "with text: ",
   "short": "A brief excerpt from the text",
-  "stats_text": "Your notes stats \n"
+  "stats_text": "Your notes stats \n",
+  "empty_stats": "You have not saved any notes yet"
 }

@@ -30,7 +30,6 @@ def create_new_user_table(chatid):
     open(f'dbs/{chatid}.db', 'w')
     con = sqlite3.connect(f'dbs/{chatid}.db')
     cursor = con.cursor()
-    print('123')
     cursor.execute(f'CREATE TABLE t{chatid} (text TEXT NOT NULL, shorted TEXT NOT NULL, voice TEXT, date TEXT NOT NULL, msg_id TEXT NOT NULL);')
     con.commit()
 
@@ -47,5 +46,12 @@ def get_all_values(chatid):
     values = cursor.execute(f'SELECT * FROM t{chatid};').fetchall()
     con.close()
     return values
+
+def set_user_lang(chatid, lang):
+    con = sqlite3.connect('dbs/root.db')
+    cursor = con.cursor()
+    cursor.execute(f'UPDATE root SET lang =? WHERE chatid =?;', (lang, chatid))
+    con.commit()
+    con.close()
 
 
