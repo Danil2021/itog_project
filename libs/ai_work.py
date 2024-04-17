@@ -1,13 +1,19 @@
-from openai import OpenAI
+from langchain.schema import HumanMessage, SystemMessage
+from langchain.chat_models.gigachat import GigaChat
 
-def shorted_text(text):
-    client = OpenAI(api_key='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')
-    completion = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "user",
-             "content": f"Ты должен сокращать тексты которые тебе отправляют. Ты можешь додумать что либо, но не изменять смысл текста. Вот сам текст: {text}"}
-        ]
-    )
-    return completion.choices[0].message.content
+chat = GigaChat(
+    credentials='ZTJlYjNhYWEtYTAwYi00YTllLWE3ZDQtMWZiOTcxNDhlZDQ4OmFhNGY1YmEwLTc3ZTgtNGYwMS1hZTc5LTlkODQwNTQyNjBlZg==',
+    verify_ssl_certs=False)
 
+
+def ai_work(text):
+    messages = [
+        SystemMessage(
+            content="Ты программа сокращатель текста. Ты сокращаешь тексты которые тебе присылают."
+                    "Знай что тексты приходять тебе от программы распознователя голоса из за чего в сообщении "
+                    "могут быть ошибки. Давай краткую выжимку из текста."
+        )
+    ]
+    messages.append(HumanMessage(content=text))
+    res = chat(messages)
+    return res.content

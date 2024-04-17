@@ -30,14 +30,22 @@ def create_new_user_table(chatid):
     open(f'dbs/{chatid}.db', 'w')
     con = sqlite3.connect(f'dbs/{chatid}.db')
     cursor = con.cursor()
-    cursor.execute(f'CREATE TABLE t{chatid} (text TEXT NOT NULL, shorted TEXT NOT NULL, voice TEXT, date TEXT NOT NULL);')
+    print('123')
+    cursor.execute(f'CREATE TABLE t{chatid} (text TEXT NOT NULL, shorted TEXT NOT NULL, voice TEXT, date TEXT NOT NULL, msg_id TEXT NOT NULL);')
     con.commit()
 
-def add_new_value(chatid, text, shorted, voice):
+def add_new_value(chatid, text, shorted, voice, msg_id):
     con = sqlite3.connect(f'dbs/{chatid}.db')
     cursor = con.cursor()
-    cursor.execute(f'INSERT INTO t{chatid} (text, shorted, voice, date) VALUES (?,?,?,?)', (text, shorted, voice, datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S")))
+    cursor.execute(f'INSERT INTO t{chatid} (text, shorted, voice, date, msg_id) VALUES (?,?,?,?,?)', (text, shorted, voice, datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"), msg_id))
     con.commit()
     con.close()
+
+def get_all_values(chatid):
+    con = sqlite3.connect(f'dbs/{chatid}.db')
+    cursor = con.cursor()
+    values = cursor.execute(f'SELECT * FROM t{chatid};').fetchall()
+    con.close()
+    return values
 
 

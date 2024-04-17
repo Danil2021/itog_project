@@ -7,6 +7,7 @@ from libs import stt
 import os
 from libs import ai_work
 import datetime
+from libs.dateform import divide_time_intervals
 
 token = '6772739524:AAHRgjEe6xfTsCOXg6gwknGe-iSn9p-1mwc'
 bot = telebot.TeleBot(token)
@@ -53,11 +54,18 @@ def save_btn(call):
 
 def main_keyboard(lang):
     keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    get_zap = types.KeyboardButton(text=translate('zapisi', lang=lang))
+    get_zap = types.KeyboardButton(text=translate('zapisi', lang=lang), )
     settings = types.KeyboardButton(text=translate('settings', lang=lang))
     keyboard.add(get_zap, settings)
     return keyboard
 
+
+@bot.message_handler()
+def message_handl(message):
+    if message.text == translate('zapisi', lang='ru') or message.text == translate('zapisi', lang='en'):
+        all_vals = sql_work.get_all_values(message.chat.id)
+        num = len(all_vals)
+        bot.send_message(message.chat.id, text=f"{translate('stats_text', lang=sql_work.get_user_lang(message.chat.id))}{num}\n{'\n'.join(divide_time_intervals(all_vals))}")
 
 
 @bot.message_handler(content_types=['voice'])
@@ -70,12 +78,15 @@ def get_audio_messages(message):
     with open('tmp/' + fname, 'wb') as f:
         f.write(doc.content)
     text = stt.stt_work(fname[:-4])
-    #short_text = ai_work.shorted_text(text)
+    #try:
+    #    short_text = ai_work.ai_work(text)
+    #except Exception:
+    #    short_text = "Its not working yet"
     short_text = "Its not working yet"
     voice = f'voices/{message.chat.id}/{fname[:-4]}.wav'
-    sql_work.add_new_value(chatid=str(message.chat.id), text=text, shorted=short_text, voice=voice)
-    bot.send_message(message.chat.id,
-                     f'{translate("success1", lang)}`{datetime.datetime.now().strftime("%d\.%m\.%Y %H:%M:%S")}` {translate("success2", lang)}\n```{datetime.datetime.now().strftime("%d.%m.%Y")}\n{text}```\n{translate('short', lang)}:\n`{short_text}`', parse_mode='MarkdownV2', reply_to_message_id=message.message_id)
+    msg_id = bot.send_message(message.chat.id,
+                     f'{translate("success1", lang)}`{datetime.datetime.now().strftime("%d\.%m\.%Y %H:%M:%S")}` {translate("success2", lang)}\n```Text\n{text}```\n{translate('short', lang)}:\n```Short\n{short_text}```', parse_mode='MarkdownV2', reply_to_message_id=message.message_id).message_id
+    sql_work.add_new_value(chatid=str(message.chat.id), text=text, shorted=short_text, voice=voice, msg_id=msg_id)
 
 
 

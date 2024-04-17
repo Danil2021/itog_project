@@ -4,9 +4,10 @@
   "greet": "You successfully entered",
   "greet_new": "Thanks for registration",
   "short_guide": "To make an entry, simply send or forward a voice message",
-  "zapisi": "Notes",
+  "zapisi": "Stats",
   "settings": "Settings",
   "success1": "Successfully saved the record from  ",
   "success2": "with text: ",
-  "short": "A brief excerpt from the text"
+  "short": "A brief excerpt from the text",
+  "stats_text": "Your notes stats \n"
 }
