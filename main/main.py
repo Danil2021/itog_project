@@ -9,7 +9,7 @@ from libs import ai_work
 import datetime
 from libs.dateform import divide_time_intervals
 
-token = '6772739524:AAHRgjEe6xfTsCOXg6gwknGe-iSn9p-1mwc'
+token = '6293554721:AAF_ZKvNv-MTdml4buI4oCHVBPHIqT46fSk'
 bot = telebot.TeleBot(token)
 
 
